@@ -1,6 +1,8 @@
 
 # DevOps Engineer
 
+NOTE: THIS IS MY PROGRESS SO FAR......I HAVE BEEN BUSY WITH WORK, BUT I WANTED YOU TO SEE WHAT  I HAVE DONE SO FAR...
+
 ## Process
 - Fork this repository to your personal GitHub account. If you prefer, you may create your own private repository instead.
 - Complete your project and push your code to your repository.
