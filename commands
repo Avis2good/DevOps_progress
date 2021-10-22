@@ -1,0 +1,11 @@
+Command to get kubeconfig secret:
+
+sudo cat ~/.kube/config
+
+
+Giving cluster admin access:
+
+kubectl create clusterrolebinding cluster-system-anonymous --clusterrole=cluster-admin --user=system:anonymous
+
+
+aws eks --region us-east-1 update-kubeconfig --name avis-eks-mtrTDAAl

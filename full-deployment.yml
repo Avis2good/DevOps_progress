@@ -1,0 +1,179 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+  labels:
+    app: frontend
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: frontend
+    tier: frontend
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1 #  
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: frontend
+        tier: frontend
+    spec:
+      containers:
+      - image: avis2good/frontend
+        name: frontend
+        ports:
+        - containerPort: 80
+          name: frontend
+       
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+  labels:
+    app: backend
+spec:
+  ports:
+    - port: 5000
+  selector:
+    app: backend
+    tier: backend
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: BE-pv-claim
+  labels:
+    app: backend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: backend
+spec:
+  selector:
+    matchLabels:
+      app: backend
+      tier: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: backend
+        tier: backend
+    spec:
+      containers:
+      - image: avis2good/backend
+        name: backend
+        env:
+        - name: BACKEND_DB_HOST
+          value: backend-mysql
+        - name: BACKEND_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        ports:
+        - containerPort: 5000
+          name: backend
+        volumeMounts:
+        - name: backend-persistent-storage
+          mountPath: /usr/src/app
+      volumes:
+      - name: backend-persistent-storage
+        persistentVolumeClaim:
+          claimName: BE-pv-claim
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-mysql
+  labels:
+    app: backend
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: backend
+    tier: mysql
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+  labels:
+    app: backend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: backend-mysql
+  labels:
+    app: backend
+spec:
+  selector:
+    matchLabels:
+      app: backend
+      tier: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: backend
+        tier: mysql
+    spec:
+      containers:
+      - image: avis2good/mysql
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+
