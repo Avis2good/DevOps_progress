@@ -1,11 +1,8 @@
-FROM node:10-alpine
+FROM nginx
 
-WORKDIR /usr/src/app
+MAINTAINER "avismcgill19@yahoo.com
 
-COPY package*.json ./
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./html /usr/share/nginx/html
 
-RUN npm install
-COPY . /usr/src/app/
-
-EXPOSE 3001
-CMD [ "node", "index.js" ]
+EXPOSE 80

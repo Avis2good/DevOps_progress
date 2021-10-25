@@ -1,11 +1,7 @@
-FROM node:10-alpine
+FROM python:3.8
 
-WORKDIR /usr/src/app
+MAINTAINER "avismcgill19@yahoo.com"
 
-COPY package*.json ./
-
-RUN npm install
-COPY . /usr/src/app/
-
-EXPOSE 3001
-CMD [ "node", "index.js" ]
+COPY . .
+RUN pip install flask
+CMD ["python", "main.py"]
