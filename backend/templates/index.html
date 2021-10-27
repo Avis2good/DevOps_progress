@@ -1,16 +1,18 @@
-<button onclick="getCount()">click me</button>
+<button onclick="incrementCount()">click me</button>
 <p>
     count: <span id="count">{{webCount}}</span>
 </p>
 
 <script>
-    function getCount() {
+    function incrementCount() {
+        // makes request to increment count and update html
         fetch('/backend')
             .then(response => response.json())
             .then(data => {
                 const count = data.count;
+                // setting span element text to the new count
                 document.getElementById("count").innerText = count;
             });
     }
-    getCount()
+    incrementCount()
 </script>
