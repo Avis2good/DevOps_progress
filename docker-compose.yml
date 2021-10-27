@@ -1,38 +1,26 @@
-version: "3.7"
+version: '3'
 
 services:
-  api:
-    build: ./backend
-    environment:
-      - CONNECTION_STRING=postgres://demo_user:demo_user@db/demo_db
-    depends_on:
-      - db
-    networks:
-      - network-backend
-      - network-frontend
+    db:
+        build: ./database
+        container_name: db
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+        ports:
+            - 3306:3306
+    python-app:
+        build: ./backend
+        container_name: backend
+        ports:
+            - "5000:5000"  
+        depends_on:
+            - db
+    nginx:
+        build: ./nginx
+        container_name: nginx
+        ports:
+            - "80:80" 
+        depends_on:
+            - python-app
+    
 
-  webapp:
-    build: ./frontend
-    environment:
-      - API_URL=http://api:3001/data
-    depends_on:
-      - api
-    ports:
-      - "3000:3000"
-    networks:
-      - network-frontend
-
-  db:
-    image: postgres:11.2-alpine
-    environment:
-      POSTGRES_USER: demo_user
-      POSTGRES_PASSWORD: demo_user
-      POSTGRES_DB: demo_db
-    volumes:
-      - ./init_sql_scripts/:/docker-entrypoint-initdb.d
-    networks:
-      - network-backend
-
-networks:
-  network-backend:
-  network-frontend:

@@ -1,5 +1,6 @@
 # Derived from official mysql image (our base image)
-FROM mysql
+FROM mysql:5.7
+EXPOSE 3306
 # Add a database
 ENV MYSQL_DATABASE connectiondb
 # Add the content of the sql-scripts/ directory to your image
