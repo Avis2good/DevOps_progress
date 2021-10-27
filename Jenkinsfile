@@ -6,7 +6,7 @@ pipeline {
 	when {
 	     branch 'main'
 	}
-      agent any
+      
       steps {
         sh 'docker build -t avis2good/frontend:latest ./frontend'
 	sh 'docker build -t avis2good/backend:latest ./backend'
@@ -17,7 +17,7 @@ pipeline {
 	when {
 		branch 'main'
 	}
-      agent any
+      
       steps {
     
     withCredentials([usernamePassword(credentialsId: 'docker_hub_login', passwordVariable: 'docker_hub_loginPassword', usernameVariable: 'docker_hub_loginUser')]) {
@@ -28,7 +28,17 @@ pipeline {
         }
       }
     }
-     
+    
+    stage ('K8S Deploy') {
+       when {
+		branch 'main'
+	}
+                kubernetesDeploy(
+                    configs: 'full-deployment.yml',
+                    kubeconfigId: 'K8S',
+                    enableConfigSubstitution: true
+                    )               
+        }
     
 }
 } 
